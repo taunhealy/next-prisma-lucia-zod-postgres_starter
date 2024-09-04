@@ -31,6 +31,7 @@ const signUp = async (formData: FormData) => {
         lastName: formDataRaw.lastName,
         email: formDataRaw.email,
         hashedPassword,
+        salt,
       },
     });
 
