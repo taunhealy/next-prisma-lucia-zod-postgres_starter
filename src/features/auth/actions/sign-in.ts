@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { lucia } from "@/lib/lucia";
 import { prisma } from "@/lib/prisma";
-import crypto from "crypto";
+import { Argon2id } from "oslo/password";
 
 type SignInResult = {
   success: boolean;
@@ -45,11 +45,12 @@ const signIn = async (formData: FormData): Promise<SignInResult> => {
       };
     }
 
-    const hashedPassword = crypto
-      .pbkdf2Sync(password, user.salt, 1000, 64, "sha512")
-      .toString("hex");
+    const validPassword = await new Argon2id().verify(
+      user.hashedPassword,
+      password
+    );
 
-    if (hashedPassword !== user.hashedPassword) {
+    if (!validPassword) {
       console.error("Invalid password");
       return {
         success: false,
